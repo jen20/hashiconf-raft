@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/raft"
 	"github.com/justinas/alice"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"
@@ -119,7 +120,8 @@ func (server *httpServer) handleJoin(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
-	addPeerFuture := server.node.raftNode.AddPeer(peerAddress)
+	addPeerFuture := server.node.raftNode.AddVoter(
+		raft.ServerID(peerAddress), raft.ServerAddress(peerAddress), 0, 0)
 	if err := addPeerFuture.Error(); err != nil {
 		server.logger.Error().
 			Err(err).

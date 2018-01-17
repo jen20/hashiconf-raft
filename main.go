@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	stdlog "log"
@@ -100,12 +99,8 @@ func NewNode(config *Config, log *zerolog.Logger) (*node, error) {
 	}
 
 	raftConfig := raft.DefaultConfig()
+	raftConfig.LocalID = raft.ServerID(config.RaftAddress.String())
 	raftConfig.Logger = stdlog.New(log, "", 0)
-
-	if config.Bootstrap {
-		raftConfig.StartAsLeader = true
-	}
-
 	transportLogger := log.With().Str("component", "raft-transport").Logger()
 	transport, err := raftTransport(config.RaftAddress, transportLogger)
 	if err != nil {
@@ -127,27 +122,22 @@ func NewNode(config *Config, log *zerolog.Logger) (*node, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	peerStore := raft.NewJSONPeers(config.DataDir, transport)
-	peers, err := peerStore.Peers()
-	if err != nil {
-		return nil, err
-	}
-
-	if config.DevelopmentMode {
-		if len(peers) > 1 {
-			return nil, errors.New("cannot enable development mode on a system with existing peers")
-		}
-		raftConfig.EnableSingleNode = true
-		raftConfig.DisableBootstrapAfterElect = false
-	}
-
 	raftNode, err := raft.NewRaft(raftConfig, fsm, logStore, stableStore,
-		snapshotStore, peerStore, transport)
+		snapshotStore, transport)
 	if err != nil {
 		return nil, err
 	}
-
+	if config.Bootstrap {
+		configuration := raft.Configuration{
+			Servers: []raft.Server{
+				{
+					ID:      raftConfig.LocalID,
+					Address: transport.LocalAddr(),
+				},
+			},
+		}
+		raftNode.BootstrapCluster(configuration)
+	}
 	return &node{
 		config:   config,
 		raftNode: raftNode,

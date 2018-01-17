@@ -12,22 +12,20 @@ import (
 )
 
 type RawConfig struct {
-	BindAddress     string
-	JoinAddress     string
-	RaftPort        int
-	HTTPPort        int
-	DataDir         string
-	DevelopmentMode bool
-	Bootstrap       bool
+	BindAddress string
+	JoinAddress string
+	RaftPort    int
+	HTTPPort    int
+	DataDir     string
+	Bootstrap   bool
 }
 
 type Config struct {
-	RaftAddress     net.Addr
-	HTTPAddress     net.Addr
-	JoinAddress     string
-	DataDir         string
-	DevelopmentMode bool
-	Bootstrap       bool
+	RaftAddress net.Addr
+	HTTPAddress net.Addr
+	JoinAddress string
+	DataDir     string
+	Bootstrap   bool
 }
 
 type ConfigError struct {
@@ -108,12 +106,11 @@ func resolveConfig(rawConfig *RawConfig) (*Config, error) {
 	}
 
 	return &Config{
-		DataDir:         dataDir,
-		JoinAddress:     rawConfig.JoinAddress, //TODO - validate this looks address-like
-		RaftAddress:     raftAddr,
-		HTTPAddress:     httpAddr,
-		DevelopmentMode: rawConfig.DevelopmentMode,
-		Bootstrap:       rawConfig.Bootstrap,
+		DataDir:     dataDir,
+		JoinAddress: rawConfig.JoinAddress, //TODO - validate this looks address-like
+		RaftAddress: raftAddr,
+		HTTPAddress: httpAddr,
+		Bootstrap:   rawConfig.Bootstrap,
 	}, nil
 }
 
@@ -141,9 +138,6 @@ func readRawConfig() *RawConfig {
 
 	flag.StringVar(&config.JoinAddress, "join",
 		"", "Address of another node to join")
-
-	flag.BoolVar(&config.DevelopmentMode, "dev",
-		false, "Enable development (single node) mode")
 
 	flag.BoolVar(&config.Bootstrap, "bootstrap",
 		false, "Bootstrap the cluster with this node")
