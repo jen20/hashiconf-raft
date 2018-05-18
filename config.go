@@ -124,11 +124,11 @@ func readRawConfig() *RawConfig {
 
 	defaultDataPath := filepath.Join(pwd, "raft")
 
-	flag.StringVarP(&config.BindAddress, "data-dir", "d",
+	flag.StringVarP(&config.DataDir, "data-dir", "d",
 		defaultDataPath, "Path in which to store Raft data")
 
 	flag.StringVarP(&config.BindAddress, "bind-address", "a",
-		"{{ GetPrivateIP }}", "IP Address on which to bind")
+		"127.0.0.1", "IP Address on which to bind")
 
 	flag.IntVarP(&config.RaftPort, "raft-port", "r",
 		7000, "Port on which to bind Raft")
