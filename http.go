@@ -87,6 +87,8 @@ func (server *httpServer) handleKeyPost(w http.ResponseWriter, r *http.Request) 
 		server.logger.Error().Err(err).Msg("")
 	}
 
+	server.node.raftNode.
+
 	applyFuture := server.node.raftNode.Apply(eventBytes, 5*time.Second)
 	if err := applyFuture.Error(); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
